@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة ومتابعة أقساط المتاجر | الإصدار 2.0</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --danger: #ef4444;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 30px 15px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 25px;
+      width: 100%;
+      max-width: 750px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    input {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: var(--primary);
+    }
+    .buttons-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn {
+      flex: 1;
+      background-color: var(--primary);
+      color: #0f172a;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+    .btn-secondary { background-color: #2563eb; color: #fff; }
+    .btn-secondary:hover { background-color: #1d4ed8; }
+    .btn-save { background-color: #f59e0b; color: #0f172a; }
+    .btn-save:hover { background-color: #d97706; }
+
+    .results {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .results { grid-template-columns: 1fr 1fr; }
+    }
+    .res-box {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .res-box span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .res-box strong {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    /* جدول الأرشيف */
+    .archive-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px dashed var(--border);
+    }
+    .archive-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .archive-header h3 {
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+    .clear-btn {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .clear-btn:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: right;
+    }
+    th {
+      background-color: #0f172a;
+      color: var(--text-muted);
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>نظام مبيعات وأقساط المتاجر الذكي</h2>
+    
+    <div class="grid">
+      <div class="form-group">
+        <label>اسم الزبون:</label>
+        <input type="text" id="custName" placeholder="مثال: حيدر علي">
+      </div>
+      <div class="form-group">
+        <label>رقم هاتف الزبون:</label>
+        <input type="text" id="custPhone" placeholder="077XXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label>سعر التكلفة (د.ع):</label>
+        <input type="number" id="costPrice" value="250000">
+      </div>
+      <div class="form-group">
+        <label>سعر البيع الكاش (د.ع):</label>
+        <input type="number" id="sellingPrice" value="350000">
+      </div>
+      <div class="form-group">
+        <label>المقدمة / الدفعة الأولى (د.ع):</label>
+        <input type="number" id="downPayment" value="50000">
+      </div>
+      <div class="form-group">
+        <label>مدة التقسيط (أشهر):</label>
+        <input type="number" id="months" value="6">
+      </div>
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label>نسبة ربح التقسيط الإضافي (%):</label>
+        <input type="number" id="interestRate" value="10">
+      </div>
+    </div>
+
+    <div class="buttons-row">
+      <button class="btn" onclick="calculateInstallments()">احسب فوراً</button>
+      <button class="btn btn-save" onclick="saveToArchive()">حفظ في السجل 💾</button>
+    </div>
+
+    <div class="results">
+      <div class="res-box">
+        <span>القسط الشهري</span>
+        <strong id="monthlyVal">0 د.ع</strong>
+      </div>
+      <div class="res-box">
+        <span>المتبقي بذمة الزبون</span>
+        <strong id="debtVal">0 د.ع</strong>
+      </div>
+      <div class="res-box">
+        <span>صافي الربح</span>
+        <strong id="profitVal">0 د.ع</strong>
+      </div>
+      <div class="res-box">
+        <span>هامش الربح</span>
+        <strong id="marginVal">0%</strong>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="copyToWhatsApp()">نسخ تفاصيل الوصل للواتساب 📲</button>
+
+    <!-- سجل العمليات السابقة -->
+    <div class="archive-section">
+      <div class="archive-header">
+        <h3 id="archiveTitle">سجل الوصولات المحفوظة (0)</h3>
+        <button class="clear-btn" onclick="clearArchive()">مسح السجل</button>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>الزبون</th>
+              <th>الهاتف</th>
+              <th>المتبقي</th>
+              <th>القسط</th>
+              <th>الأشهر</th>
+            </tr>
+          </thead>
+          <tbody id="archiveBody">
+            <!-- تضاف العناصر عبر الجافاسكريبت هنا -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculateInstallments() {
+      const cost = parseFloat(document.getElementById('costPrice').value) || 0;
+      const sell = parseFloat(document.getElementById('sellingPrice').value) || 0;
+      const down = parseFloat(document.getElementById('downPayment').value) || 0;
+      const months = parseInt(document.getElementById('months').value) || 1;
+      const interest = parseFloat(document.getElementById('interestRate').value) || 0;
+
+      const baseRemaining = Math.max(0, sell - down);
+      const interestAmount = baseRemaining * (interest / 100);
+      const totalRemainingDebt = baseRemaining + interestAmount;
+      const monthlyPayment = months > 0 ? (totalRemainingDebt / months) : 0;
+      
+      const totalRevenue = down + totalRemainingDebt;
+      const netProfit = totalRevenue - cost;
+      const margin = cost > 0 ? ((netProfit / cost) * 100) : 0;
+
+      document.getElementById('monthlyVal').innerText = Math.round(monthlyPayment).toLocaleString() + ' د.ع';
+      document.getElementById('debtVal').innerText = Math.round(totalRemainingDebt).toLocaleString() + ' د.ع';
+      document.getElementById('profitVal').innerText = Math.round(netProfit).toLocaleString() + ' د.ع';
+      document.getElementById('marginVal').innerText = margin.toFixed(1) + '%';
+
+      return {
+        name: document.getElementById('custName').value.trim() || 'زبون عام',
+        phone: document.getElementById('custPhone').value.trim() || 'غير مسجل',
+        debt: Math.round(totalRemainingDebt).toLocaleString() + ' د.ع',
+        monthly: Math.round(monthlyPayment).toLocaleString() + ' د.ع',
+        months: months
+      };
+    }
+
+    function saveToArchive() {
+      const data = calculateInstallments();
+      const records = JSON.parse(localStorage.getItem('receipts_archive') || '[]');
+      records.unshift(data); // إضافة في أول القائمة
+      localStorage.setItem('receipts_archive', JSON.stringify(records));
+      renderArchive();
+      alert('تم حفظ الوصل بنجاح داخل الذاكرة المحلية!');
+    }
+
+    function renderArchive() {
+      const records = JSON.parse(localStorage.getItem('receipts_archive') || '[]');
+      const tbody = document.getElementById('archiveBody');
+      const title = document.getElementById('archiveTitle');
+      
+      title.innerText = `سجل الوصولات المحفوظة (${records.length})`;
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">لا توجد وصولات محفوظة حتى الآن</td></tr>';
+        return;
+      }
+
+      records.forEach(r => {
+        const row = `<tr>
+          <td>${r.name}</td>
+          <td>${r.phone}</td>
+          <td>${r.debt}</td>
+          <td>${r.monthly}</td>
+          <td>${r.months} أشهر</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function clearArchive() {
+      if (confirm('هل أنت متأكد من مسح جميع الوصولات المحفوظة؟')) {
+        localStorage.removeItem('receipts_archive');
+        renderArchive();
+      }
+    }
+
+    function copyToWhatsApp() {
+      const name = document.getElementById('custName').value.trim() || 'زبوننا العزيز';
+      const phone = document.getElementById('custPhone').value.trim();
+      const monthly = document.getElementById('monthlyVal').innerText;
+      const debt = document.getElementById('debtVal').innerText;
+      const down = document.getElementById('downPayment').value;
+      const months = document.getElementById('months').value;
+
+      const message = `السلام عليكم ورحمة الله 💐\nالسيد/ة المحترم/ة: ${name}\n` +
+        (phone ? `رقم الهاتف: ${phone}\n` : '') +
+        `\nتفاصيل وصل حساب الأقساط:\n` +
+        `- الدفعة الأولى (المقدمة): ${Number(down).toLocaleString()} د.ع\n` +
+        `- المبلغ الكلي المتبقي: ${debt}\n` +
+        `- مدة التسديد: ${months} أشهر\n` +
+        `- القسط الشهري الثابت: ${monthly}\n\n` +
+        `شكراً لتعاملكم معنا!`;
+
+      navigator.clipboard.writeText(message).then(() => {
+        alert('تم نسخ الوصل بالكامل لرسالة الواتساب!');
+      });
+    }
+
+    // تشغيل الحساب وعرض الأرشيف فور فتح الصفحة
+    calculateInstallments();
+    renderArchive();
+  </script>
+</body>
+</html>
